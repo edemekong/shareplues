@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shareplues/states/auth_state.dart';
 
 class Dashboard extends ConsumerStatefulWidget {
   final Widget body;
@@ -12,6 +13,30 @@ class Dashboard extends ConsumerStatefulWidget {
 class _DashboardState extends ConsumerState<Dashboard> {
   @override
   Widget build(BuildContext context) {
-    return Container();
+    final state = ref.read(authStateProvider);
+    print(state.name);
+
+    return Scaffold(
+      body: widget.body,
+      bottomNavigationBar: BottomNavigationBar(
+        items: const [
+          BottomNavigationBarItem(
+            label: 'Home',
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
+          ),
+          BottomNavigationBarItem(
+            label: 'Chat',
+            icon: Icon(Icons.chat_outlined),
+            activeIcon: Icon(Icons.chat),
+          ),
+          BottomNavigationBarItem(
+            label: 'Profile',
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
+          ),
+        ],
+      ),
+    );
   }
 }

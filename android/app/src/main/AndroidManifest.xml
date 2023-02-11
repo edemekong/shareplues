@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.flutterfairy.shareplue.shareplues">
+    package="com.flutterfairy.shareplues">
    <application
         android:label="shareplues"
         android:name="${applicationName}"
