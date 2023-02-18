@@ -3,20 +3,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shareplues/models/user.dart';
 import 'package:shareplues/repositories/user_repository.dart';
 
-enum AuthState { idle, loading, loadingHandle, loadedHandle, loaded }
-
-final authStateProvider = StateNotifierProvider<AuthStateNotifier, AuthState>((ref) {
+final authStateProvider = StateNotifierProvider<AuthStateNotifier, User?>((ref) {
   return AuthStateNotifier(ref);
 });
 
-class AuthStateNotifier extends StateNotifier<AuthState> {
+class AuthStateNotifier extends StateNotifier<User?> {
   final Ref reference;
 
-  TextEditingController nameController = TextEditingController();
-  TextEditingController handleController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController handleController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
 
-  GlobalKey<FormState> authformKey = GlobalKey<FormState>();
+  bool isLogin = false;
+
+  final GlobalKey<FormState> authformKey = GlobalKey<FormState>();
 
   UserRepository get userRepo => reference.read(userRepositoryProvider);
 
@@ -31,14 +31,24 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
         updatedAt: DateTime.now().millisecondsSinceEpoch,
       );
 
-  AuthStateNotifier(this.reference) : super(AuthState.idle);
+  AuthStateNotifier(this.reference) : super(null) {
+    userRepo.currentUserNotifier.addListener(_userListener);
+  }
+
+  void _userListener() {
+    state = userRepo.currentUser;
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    userRepo.currentUserNotifier.removeListener(_userListener);
+  }
 
   void createAccount() async {
     final validate = authformKey.currentState?.validate();
-    if (validate == true && [AuthState.loaded].contains(state)) {
-      state = AuthState.loading;
+    if (validate == true) {
       final register = await userRepo.registerWithEmail(initialUserData);
-      state = AuthState.idle;
 
       if (register.isRight) {
         debugPrint('email sent');
@@ -53,10 +63,8 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
 
   void loginWithEmail() async {
     final validate = authformKey.currentState?.validate();
-    if (validate == true && [AuthState.loaded].contains(state)) {
-      state = AuthState.loading;
+    if (validate == true) {
       final login = await userRepo.sendLoginEmailLink(emailController.text.trim());
-      state = AuthState.idle;
 
       if (login.isRight) {
         debugPrint('email sent');
@@ -69,17 +77,15 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
   }
 
   void checkUserHandle() async {
-    if ([AuthState.loaded].contains(state)) {
-      state = AuthState.loadingHandle;
-      final getUsername = await userRepo.getEmailFromUser(handleController.text.trim());
-      state = AuthState.loaded;
+    final getUsername = await userRepo.getEmailFromUser(handleController.text.trim());
 
-      if (getUsername.isRight) {
-        final emails = getUsername.right;
-        if (emails.isEmpty) {
-          state = AuthState.loadedHandle;
-        }
-      }
+    if (getUsername.isRight) {
+      final emails = getUsername.right;
+      print(emails);
     }
+  }
+
+  void switchTo() {
+    isLogin = !isLogin;
   }
 }

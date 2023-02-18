@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shareplues/screens/authentication/authentication_view.dart';
 
 import '../constants/navigation_paths.dart';
 import '../screens/dashboard/dashboard.dart';
@@ -40,18 +41,35 @@ class NavigationService {
               );
             },
             routes: [
-              GoRoute(
-                path: NavigationPath.authPath,
-                pageBuilder: (_, state) {
-                  return const NoTransitionPage(
-                    child: Scaffold(),
-                  );
+              route(
+                path: NavigationPath.feedPath,
+                builder: (_, state) {
+                  return const Scaffold();
                 },
               ),
             ],
           ),
+          route(
+            path: NavigationPath.authPath,
+            builder: (_, state) {
+              return const AuthenticationView();
+            },
+          ),
         ],
       );
+
+  GoRoute route(
+      {required String path, required Function(BuildContext, GoRouterState) builder, bool removeTransition = false}) {
+    return GoRoute(
+      path: path,
+      builder: !removeTransition ? null : (context, state) => builder(context, state),
+      pageBuilder: removeTransition
+          ? null
+          : (context, state) => NoTransitionPage(
+                child: builder(context, state),
+              ),
+    );
+  }
 }
 
 String getPath(String path, {Map<String, dynamic>? queryParameters}) {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shareplues/states/auth_state.dart';
+import 'package:shareplues/notifiers/auth_state.dart';
 
 class Dashboard extends ConsumerStatefulWidget {
   final Widget body;
@@ -14,7 +14,6 @@ class _DashboardState extends ConsumerState<Dashboard> {
   @override
   Widget build(BuildContext context) {
     final state = ref.read(authStateProvider);
-    print(state.name);
 
     return Scaffold(
       body: widget.body,
